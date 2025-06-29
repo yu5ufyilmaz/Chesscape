@@ -1,104 +1,57 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Player Settings")]
-    public float moveSpeed = 5f;
+    private float _speed;
+    public List<GameObject> placeholders = new List<GameObject>();
+    [SerializeField] private InputAction position,press;
     
-    private Vector2Int gridPosition = new Vector2Int(1, 2); // Alt ortada başla
-    private GridManager gridManager;
-    private bool canMove = true;
+    private Vector2 initialPosition;
+    private Vector2 currentPosition => position.ReadValue<Vector2>();
+    private void Awake()
+    {
+        position.Enable();
+        press.Enable();
+        press.performed += _ => 
+        {
+            initialPosition = currentPosition;
+        };
+        press.canceled += _ => DetectSwipe();
+    }
     
+    private void DetectSwipe()
+    {
+        Vector2 swipeDelta = currentPosition - initialPosition;
+        if (swipeDelta.magnitude > 0.1f) // Adjust threshold as needed
+        {
+            Debug.Log("Swipe detected: " + swipeDelta);
+            // Handle swipe logic here
+        }
+    }
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gridManager = FindObjectOfType<GridManager>();
-        UpdatePosition();
+        // Initialize the speed of the player
+        _speed = 5.0f;
+
+        // Find all GameObjects with the tag "Placeholder" and add them to the list
+        GameObject[] placeholderObjects = GameObject.FindGameObjectsWithTag("Placeholder");
+        foreach (GameObject placeholder in placeholderObjects)
+        {
+            placeholders.Add(placeholder);
+        }
+
+        // Log the number of placeholders found
+        Debug.Log("Number of placeholders found: " + placeholders.Count);
     }
-    
+
+    // Update is called once per frame
     void Update()
     {
-        if (!canMove) return;
         
-        HandleInput();
-    }
-    
-    void HandleInput()
-    {
-        Vector2Int moveDirection = Vector2Int.zero;
-        
-        // Klavye girişi
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-            moveDirection = Vector2Int.up;
-        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-            moveDirection = Vector2Int.down;
-        else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-            moveDirection = Vector2Int.left;
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-            moveDirection = Vector2Int.right;
-        
-        // Touch girişi (mobil için)
-        HandleTouchInput(ref moveDirection);
-        
-        if (moveDirection != Vector2Int.zero)
-        {
-            TryMove(moveDirection);
-        }
-    }
-    
-    void HandleTouchInput(ref Vector2Int moveDirection)
-    {
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
-            {
-                Vector3 touchWorldPos = Camera.main.ScreenToWorldPoint(touch.position);
-                Vector2Int touchGridPos = gridManager.GetGridPosition(touchWorldPos);
-                
-                Vector2Int difference = touchGridPos - gridPosition;
-                
-                // En büyük farkı bul (sadece 1 kare hareket)
-                if (Mathf.Abs(difference.x) > Mathf.Abs(difference.y))
-                    moveDirection = new Vector2Int(difference.x > 0 ? 1 : -1, 0);
-                else if (difference.y != 0)
-                    moveDirection = new Vector2Int(0, difference.y > 0 ? 1 : -1);
-            }
-        }
-    }
-    
-    void TryMove(Vector2Int direction)
-    {
-        Vector2Int newPosition = gridPosition + direction;
-        
-        if (gridManager.IsValidPosition(newPosition.x, newPosition.y))
-        {
-            gridPosition = newPosition;
-            UpdatePosition();
-            
-            // GameManager'a hareket bildir
-            GameManager.Instance?.OnPlayerMoved();
-        }
-    }
-    
-    void UpdatePosition()
-    {
-        Vector3 targetPos = gridManager.GetWorldPosition(gridPosition.x, gridPosition.y);
-        transform.position = Vector3.Lerp(transform.position, targetPos, moveSpeed * Time.deltaTime);
-    }
-    
-    public Vector2Int GetGridPosition()
-    {
-        return gridPosition;
-    }
-    
-    public void SetGridPosition(Vector2Int newPos)
-    {
-        gridPosition = newPos;
-        UpdatePosition();
-    }
-    
-    public void SetCanMove(bool value)
-    {
-        canMove = value;
     }
 }
