@@ -1607,7 +1607,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a2da2cc876d704489164a35db4f730f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallingObjectPrefab: {fileID: 3623885270573268768, guid: 8d6ddbf2c238c8545931e79eb4ec0958, type: 3}
+  chessPiecePrefabs:
+  - {fileID: 8826484732926257832, guid: f6c2a9d5e91515543a13e0b7f9626d6f, type: 3}
+  - {fileID: 8826484732926257832, guid: 19a1bd70fc4fdc04d9039a4925f989c7, type: 3}
+  - {fileID: 8826484732926257832, guid: be8c645bb225a5d4396562f2ec165405, type: 3}
+  - {fileID: 8826484732926257832, guid: 97610542e54a60541b5841954ee7612b, type: 3}
+  - {fileID: 8826484732926257832, guid: 1c9654294787a214184b5ff9ffd6fe06, type: 3}
   spawnCells:
   - {fileID: 1409467927}
   - {fileID: 2130029611}
@@ -1616,6 +1621,12 @@ MonoBehaviour:
   spawnInterval: 2
   fallSpeed: 1
   difficultyIncreaseRate: 0.1
+  pieceSpawnRates:
+  - 0.4
+  - 0.2
+  - 0.2
+  - 0.1
+  - 0.1
   gridParent: {fileID: 63390722}
   gridCells:
   - {fileID: 1647073880}
@@ -1637,7 +1648,9 @@ MonoBehaviour:
   playerMovement: {fileID: 1155396732}
   gameActive: 1
   score: 0
+  piecesSurvived: 0
   scoreText: {fileID: 0}
+  pieceCountText: {fileID: 0}
   gameOverText: {fileID: 0}
 --- !u!4 &939224940
 Transform:
@@ -3120,37 +3133,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &2052931870
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2052931872}
-  m_Layer: 0
-  m_Name: WaveChessManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2052931872
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2052931870}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 38.37778, y: -5.078525, z: -0.2073257}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2076541503
 GameObject:
   m_ObjectHideFlags: 0
@@ -3309,6 +3291,5 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 1567665063}
   - {fileID: 1743361612}
-  - {fileID: 2052931872}
   - {fileID: 939224940}
   - {fileID: 817154917}
