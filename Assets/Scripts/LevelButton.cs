@@ -1,11 +1,12 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LevelButton : MonoBehaviour
 {
     [Header("UI Elements")]
-    [SerializeField] private Text levelNumberText;
-    [SerializeField] private Text difficultyText;
+    [SerializeField] private TextMeshProUGUI levelNumberText;
+    [SerializeField] private TextMeshProUGUI difficultyText;
     [SerializeField] private GameObject[] stars;
     [SerializeField] private GameObject lockIcon;
     [SerializeField] private Button levelButton;
@@ -70,49 +71,40 @@ public class LevelButton : MonoBehaviour
         }
     }
     
-
     void OnLevelSelected()
     {
+        // Can kontrolü
         if (PlayerData.instance == null)
         {
             Debug.LogError("PlayerData instance is null!");
             return;
         }
         
-        if (PlayerData.instance.CanPlayLevel())
+        if (!PlayerData.instance.CanPlayLevel())
         {
-            UIManager uiManager = FindObjectOfType<UIManager>();
-            if (uiManager != null)
-            {
-                uiManager.LoadGameScene(levelNumber);
-            }
-        }
-        else
-        {
+            // Can yoksa popup göster
             UIManager uiManager = FindObjectOfType<UIManager>();
             if (uiManager != null)
             {
                 uiManager.ShowNotEnoughHealthPopup();
             }
+            else
+            {
+                Debug.LogWarning("Not enough health to play this level!");
+            }
+            return;
         }
-    }
-    
-    void LoadLevel(int levelNumber)
-    {
-        // Can kullan
-        PlayerData.instance.UseHealth();
         
-        Debug.Log($"Loading Level {levelNumber}");
-        
-        // UI'yi oyun moduna geç
-        UIManager uiManager = FindObjectOfType<UIManager>();
-        if (uiManager != null)
+        // UIManager üzerinden Game Scene'e geç
+        UIManager uiManager2 = FindObjectOfType<UIManager>();
+        if (uiManager2 != null)
         {
-            uiManager.StartGame();
+            uiManager2.LoadGameScene(levelNumber);
         }
-        
-        // Burada level yükleme mantığınızı ekleyebilirsiniz
-        // Örneğin: SceneManager.LoadScene("GameScene");
+        else
+        {
+            Debug.LogError("UIManager not found!");
+        }
     }
     
     string GetDifficultyText(int difficulty)

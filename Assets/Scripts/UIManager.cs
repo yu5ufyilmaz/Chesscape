@@ -1,31 +1,31 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Panels")]
-    [SerializeField] private GameObject levelSelectionPanel;
-    [SerializeField] private GameObject avatarSelectionPanel;
-    [SerializeField] private GameObject shopPanel;
-    [SerializeField] private GameObject leaderboardPanel;
-    [SerializeField] private GameObject gameUIPanel;
+    [Header("Main Panels")]
+    [SerializeField] private GameObject levelSelectionPanel; // ANA EKRAN - İlk açıldığında bu görünür
+    [SerializeField] private GameObject shopPanel; // Sol alt butona tıklayınca
+    [SerializeField] private GameObject leaderboardPanel; // Sağ alt butona tıklayınca
+    [SerializeField] private GameObject avatarSelectionPanel; // Avatar butonuna tıklayınca
     [SerializeField] private GameObject notEnoughHealthPopup;
     
-    [Header("Header UI")]
+    [Header("Header UI - Always Visible")]
     [SerializeField] private Button avatarButton;
-    [SerializeField] private Text usernameText;
-    [SerializeField] private Text healthCountText;
-    [SerializeField] private Text coinCountText;
-    [SerializeField] private Text gemCountText;
+    [SerializeField] private TextMeshProUGUI usernameText;
+    [SerializeField] private TextMeshProUGUI healthCountText;
+    [SerializeField] private TextMeshProUGUI coinCountText;
+    [SerializeField] private TextMeshProUGUI gemCountText;
     [SerializeField] private Slider healthRegenSlider;
     
-    [Header("Bottom Navigation")]
-    [SerializeField] private Button shopButton;
-    [SerializeField] private Button leaderboardButton;
-    [SerializeField] private Button playButton;
+    [Header("Bottom Navigation - Always Visible")]
+    [SerializeField] private Button shopButton; // Sol alt
+    [SerializeField] private Button playButton; // Orta (Level Selection'a geri döner)
+    [SerializeField] private Button leaderboardButton; // Sağ alt
     
     [Header("Level Selection")]
     [SerializeField] private Transform levelButtonsParent;
@@ -37,6 +37,7 @@ public class UIManager : MonoBehaviour
     // Singleton pattern
     public static UIManager instance;
     
+    // Static değişken - hangi level'ı Game Scene'de yükleyeceğimizi bilmek için
     public static int selectedLevel = 1;
     
     private void Awake()
@@ -62,23 +63,9 @@ public class UIManager : MonoBehaviour
         StartCoroutine(HealthRegenTimer());
     }
     
-    public void LoadGameScene(int levelNumber)
-    {
-        if (!PlayerData.instance.CanPlayLevel())
-        {
-            ShowNotEnoughHealthPopup();
-            return;
-        }
-
-        PlayerData.instance.UseHealth();
-        
-        selectedLevel = levelNumber;
-  
-        SceneManager.LoadScene("GameScene");
-    }
     void InitializeUI()
     {
-        // Start with level selection panel active
+        // İlk açıldığında Level Selection Panel aktif
         ShowLevelSelection();
         UpdateHeaderUI();
         
@@ -89,17 +76,19 @@ public class UIManager : MonoBehaviour
     
     void SetupButtonEvents()
     {
+        // Header buttons
         if (avatarButton != null)
             avatarButton.onClick.AddListener(ShowAvatarSelection);
-            
+        
+        // Bottom navigation buttons
         if (shopButton != null)
-            shopButton.onClick.AddListener(ShowShop);
-            
-        if (leaderboardButton != null)
-            leaderboardButton.onClick.AddListener(ShowLeaderboard);
+            shopButton.onClick.AddListener(ShowShop); // Sol alt → Shop Panel
             
         if (playButton != null)
-            playButton.onClick.AddListener(ShowLevelSelection);
+            playButton.onClick.AddListener(ShowLevelSelection); // Orta → Level Selection (Ana ekran)
+            
+        if (leaderboardButton != null)
+            leaderboardButton.onClick.AddListener(ShowLeaderboard); // Sağ alt → Leaderboard Panel
     }
     
     void GenerateLevelButtons()
@@ -129,53 +118,86 @@ public class UIManager : MonoBehaviour
         }
     }
     
+    // ===== PANEL MANAGEMENT =====
+    
     public void ShowLevelSelection()
     {
         HideAllPanels();
+        
         if (levelSelectionPanel != null)
             levelSelectionPanel.SetActive(true);
-    }
-    
-    public void ShowAvatarSelection()
-    {
-        if (avatarSelectionPanel != null)
-            avatarSelectionPanel.SetActive(true);
+            
+        Debug.Log("Level Selection Active (Main Screen)");
     }
     
     public void ShowShop()
     {
+        HideAllPanels();
+        
         if (shopPanel != null)
             shopPanel.SetActive(true);
+            
+        Debug.Log("Shop Panel Active");
     }
     
     public void ShowLeaderboard()
     {
+        HideAllPanels();
+        
         if (leaderboardPanel != null)
             leaderboardPanel.SetActive(true);
+            
+        Debug.Log("Leaderboard Panel Active");
     }
     
-    public void StartGame()
+    public void ShowAvatarSelection()
     {
-        HideAllPanels();
-        if (gameUIPanel != null)
-            gameUIPanel.SetActive(true);
-            
-        // ChessGameManager'ı başlat
-        ChessGameManager gameManager = FindObjectOfType<ChessGameManager>();
-        if (gameManager != null)
-        {
-            // Oyunu restart et veya başlat
-            gameManager.RestartGame();
-        }
+        // Avatar Selection overlay olarak açılır (diğer paneli kapatmaz)
+        if (avatarSelectionPanel != null)
+            avatarSelectionPanel.SetActive(true);
     }
+    
+    void HideAllPanels()
+    {
+        if (levelSelectionPanel != null)
+            levelSelectionPanel.SetActive(false);
+            
+        if (shopPanel != null)
+            shopPanel.SetActive(false);
+            
+        if (leaderboardPanel != null)
+            leaderboardPanel.SetActive(false);
+    }
+    
+    // ===== GAME SCENE LOADING =====
+    
+    public void LoadGameScene(int levelNumber)
+    {
+        if (playerData == null || !playerData.CanPlayLevel())
+        {
+            ShowNotEnoughHealthPopup();
+            return;
+        }
+        
+        // Can kullan
+        playerData.UseHealth();
+        
+        // Hangi level seçildiğini kaydet
+        selectedLevel = levelNumber;
+        
+        Debug.Log($"Loading Game Scene for Level {levelNumber}");
+        
+        // Game Scene'e geç
+        SceneManager.LoadScene("GameScene");
+    }
+    
+    // ===== POPUP MANAGEMENT =====
     
     public void ShowNotEnoughHealthPopup()
     {
         if (notEnoughHealthPopup != null)
         {
             notEnoughHealthPopup.SetActive(true);
-            
-            // 2 saniye sonra otomatik kapat
             StartCoroutine(HidePopupAfterDelay(2f));
         }
         else
@@ -191,23 +213,7 @@ public class UIManager : MonoBehaviour
             notEnoughHealthPopup.SetActive(false);
     }
     
-    void HideAllPanels()
-    {
-        if (levelSelectionPanel != null)
-            levelSelectionPanel.SetActive(false);
-            
-        if (avatarSelectionPanel != null)
-            avatarSelectionPanel.SetActive(false);
-            
-        if (shopPanel != null)
-            shopPanel.SetActive(false);
-            
-        if (leaderboardPanel != null)
-            leaderboardPanel.SetActive(false);
-            
-        if (gameUIPanel != null)
-            gameUIPanel.SetActive(false);
-    }
+    // ===== UI UPDATES =====
     
     void UpdateHeaderUI()
     {
@@ -247,7 +253,7 @@ public class UIManager : MonoBehaviour
             if (playerData != null && playerData.currentHealth < playerData.maxHealth)
             {
                 yield return new WaitForSeconds(playerData.healthRegenTime);
-                playerData.currentHealth++;
+                playerData.AddHealth(1);
                 UpdateHeaderUI();
                 Debug.Log("Health regenerated! Current health: " + playerData.currentHealth);
             }
@@ -255,14 +261,14 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    // Public method to update UI when data changes
     public void RefreshUI()
     {
         UpdateHeaderUI();
         GenerateLevelButtons();
     }
     
-    // Close panel methods for UI buttons
+    // ===== CLOSE PANEL METHODS =====
+    
     public void CloseAvatarPanel()
     {
         if (avatarSelectionPanel != null)
@@ -271,19 +277,59 @@ public class UIManager : MonoBehaviour
     
     public void CloseShopPanel()
     {
-        if (shopPanel != null)
-            shopPanel.SetActive(false);
+        // Shop panel'dan Level Selection'a geri dön
+        ShowLevelSelection();
     }
     
     public void CloseLeaderboardPanel()
     {
-        if (leaderboardPanel != null)
-            leaderboardPanel.SetActive(false);
+        // Leaderboard panel'dan Level Selection'a geri dön
+        ShowLevelSelection();
     }
     
     public void CloseNotEnoughHealthPopup()
     {
         if (notEnoughHealthPopup != null)
             notEnoughHealthPopup.SetActive(false);
+    }
+    
+    // ===== PUBLIC METHODS FOR PANELS =====
+    
+    // Shop Panel'dan çağrılacak
+    public void OnShopBackButton()
+    {
+        ShowLevelSelection();
+    }
+    
+    // Leaderboard Panel'dan çağrılacak  
+    public void OnLeaderboardBackButton()
+    {
+        ShowLevelSelection();
+    }
+    
+    // ===== DEBUG METHODS =====
+    
+    [ContextMenu("Test Show Shop")]
+    void TestShowShop()
+    {
+        ShowShop();
+    }
+    
+    [ContextMenu("Test Show Leaderboard")]
+    void TestShowLeaderboard()
+    {
+        ShowLeaderboard();
+    }
+    
+    [ContextMenu("Test Show Level Selection")]
+    void TestShowLevelSelection()
+    {
+        ShowLevelSelection();
+    }
+    
+    [ContextMenu("Test Load Level 1")]
+    void TestLoadLevel1()
+    {
+        LoadGameScene(1);
     }
 }
