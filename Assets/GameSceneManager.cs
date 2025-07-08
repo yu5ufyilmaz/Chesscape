@@ -2,17 +2,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using TMPro;
 
 public class GameSceneManager : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private Text levelNumberText;
-    [SerializeField] private Text difficultyText;
-    [SerializeField] private Text scoreText;
-    [SerializeField] private Text timerText;
-    [SerializeField] private Text healthText;
-    [SerializeField] private Text piecesSurvivedText;
-    [SerializeField] private Text streakText;
+    [SerializeField] private TextMeshProUGUI levelNumberText;
+    [SerializeField] private TextMeshProUGUI difficultyText;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private TextMeshProUGUI piecesSurvivedText;
+    [SerializeField] private TextMeshProUGUI streakText;
     
     [Header("Buttons")]
     [SerializeField] private Button backButton;
@@ -190,7 +191,7 @@ public class GameSceneManager : MonoBehaviour
         if (chessGameManager != null)
         {
             chessGameManager.gameObject.SetActive(true);
-            chessGameManager.RestartGame();
+            //chessGameManager.RestartGame();
         }
         
         // Game variables'ı reset et

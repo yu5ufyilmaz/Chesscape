@@ -63,6 +63,26 @@ public class UIManager : MonoBehaviour
         StartCoroutine(HealthRegenTimer());
     }
     
+    private void Update()
+    {
+        
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            if (playerData != null)
+            {
+                playerData.currentHealth = playerData.maxHealth;
+                UpdateHeaderUI();
+                Debug.Log("Health filled to maximum! Current health: " + playerData.currentHealth);
+            }
+            else
+            {
+                Debug.LogWarning("PlayerData is null, cannot fill health!");
+            }
+        }
+#endif
+    }
+    
     void InitializeUI()
     {
         // İlk açıldığında Level Selection Panel aktif
